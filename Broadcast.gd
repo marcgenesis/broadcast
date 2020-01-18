@@ -23,10 +23,14 @@ func get_listeners(message : String) -> Dictionary:
 	else:
 		return {}
 
-# `get_methods` returns a list of method used by a listener for the supplied message
-func get_methods(message : String, listener : Object) -> Dictionary:
+# `get_actions` returns a list of action used by a listener for the supplied message
+func get_actions(message : String, listener : Object) -> Dictionary:
+	if listener == null:
+		if debug: print("Listener is invalid. Cannot get actions.")
+		return {}
+		
 	if messages.has(message) && messages[message].has(listener):
-		return messages[message][listener]
+		return messages[message][listener]["actions"]
 	else:
 		return {}
 
@@ -37,21 +41,30 @@ func send(message : String, params : Dictionary = {}) -> bool:
 		# If it exists, broadcast to every listener
 		if messages[message].size() > 0:
 			for listener in messages[message]:
-				# Broadcast to each method
-				for method in messages[message][listener]:			
-					if listener.has_method(method):
-						#If the method exists, broadcast the message
-						listener.call(method, params)
+				# Check if the listener has been freed.
+				# This is true if the id is now different, since the reference changed.
+				if listener.get_instance_id() == messages[message][listener]["id"]:
+				
+					# Broadcast to each action
+					for action in messages[message][listener]["actions"]:
+						if listener.has_method(action):
+							#If the action exists, broadcast the message
+							listener.call(action, params)
+							
+							# Remove if it is suppose to fire only once
+							if messages[message][listener]["actions"][action]:
+								messages[message][listener]["actions"].erase(action)
+								if debug: print("action ", action, " fired once for listener ", listener.name, " on message ", message, " and was removed.")
+						else:
+							# Check if the listener was deleted. If so remove it from the list
+							if debug: print("Not such action (", action, ") for listener ", listener.name)
+			
+					# If the listener doesn't have any actions left, remove it from the message
+					if messages[message][listener]["actions"].size() == 0:
+						messages[message].erase(listener)
 						
-						# Remove if it is suppose to fire only once
-						if messages[message][listener][method]:
-							messages[message][listener].erase(method)
-							if debug: print("Method ", method, " fired once for listener ", listener.name, " on message ", message, " and was removed.")
-					else:
-						if debug: print("Not such method (", method, ") for listener ", listener.name)
-		
-				# If the listener doesn't have any methods left, remove it from the message
-				if messages[message][listener].size() == 0:
+				else:
+					# The id is now different. The listener was freed from the scene. Delete it from the message.
 					messages[message].erase(listener)
 		
 			if debug: print("Successfully sent message: '", message, "' using params: ", params)
@@ -63,22 +76,31 @@ func send(message : String, params : Dictionary = {}) -> bool:
 		if debug: print("Send failed. Message ", message, " doesn't exist")
 		return false
 
-# `is_listening` verify if the listener is listening to the supplied message. Optionally it can verify if it is listening using a specific method
-func is_listening(message : String, listener : Object, method = "") -> bool:
-	if method == "":
+# `is_listening` verify if the listener is listening to the supplied message. Optionally it can verify if it is listening using a specific action
+func is_listening(message : String, listener : Object, action = "") -> bool:
+	if listener == null:
+		if debug: print("Listener is invalid. Cannot verify if it is listening.")
+		return false
+	
+	if action == "":
 		# Check if the listerner is listening to the supplied message.
 		if messages.has(message) && messages[message].has(listener):
 			return true
 	else:
-		# Check if the listerner is listening to the supplied message using the supplied method
-		if messages.has(message) && messages[message].has(listener) && messages[message][listener].has(method):
+		# Check if the listerner is listening to the supplied message using the supplied action
+		if messages.has(message) && messages[message].has(listener) && messages[message][listener]["actions"].has(action):
 			return true
 	
 	# If the function hasn't returned yet, it means the listener isn't listening
 	return false
 
-# `listen` adds the listener to the list of listeners for the message that will call the method
-func listen(message : String, listener : Object, method : String, once = false) -> bool:
+# `listen` adds the listener to the list of listeners for the message that will call the action
+func listen(message : String, listener : Object, action : String, once = false) -> bool:
+	# Check to make sure the listener is valid
+	if listener == null:
+		if debug: print("Listener is invalid. Cannot add to message ", message, " using action " , action)
+		return false
+	
 	# If force_registration is on, make sure the message is registered before listening
 	if force_registration:
 		# Check if the message is registered
@@ -92,26 +114,30 @@ func listen(message : String, listener : Object, method : String, once = false) 
 	
 	# Check if the listener already exists, if not add it.
 	if !messages[message].has(listener):
-		messages[message][listener] = {}
+		messages[message][listener] = {"actions" : {}, "id" : listener.get_instance_id()}
 	
-	# Add the method to the listener for the supplied message, if necessary
-	if !messages[message][listener].has(method):
-		messages[message][listener][method] = once
+	# Add the action to the listener for the supplied message, if necessary
+	if !messages[message][listener]["actions"].has(action):
+		messages[message][listener]["actions"][action] = once
 	else:
-		if debug: print("Listener ", listener.name, " already listening for message ", message, " with method ", method)
+		if debug: print("Listener ", listener.name, " already listening for message ", message, " with action ", action)
 		return false
 
 	# Success
-	if debug: print("Listener ", listener.name, " now listening for message ", message, " with method ", method, ". Fire once: ", once)
+	if debug: print("Listener ", listener.name, " now listening for message ", message, " with action ", action, ". Fire once: ", once)
 	return true
 
-# `listen_once` adds the listener to the message with a given method. It will be removed once called.
-func listen_once(message : String, listener : Object, method : String) -> bool:
-	var success = listen(message, listener, method, true)
+# `listen_once` adds the listener to the message with a given action. It will be removed once called.
+func listen_once(message : String, listener : Object, action : String) -> bool:
+	var success = listen(message, listener, action, true)
 	return success
 
 # `ignore_all` removes the listener from the supplied message
 func ignore_all(message : String, listener : Object) -> bool:
+	if listener == null:
+		if debug: print("Listener is invalid. Cannot ignore message ", message)
+		return false
+	
 	# Check for the message
 	if messages.has(message):
 		# Remove the listener
@@ -128,18 +154,22 @@ func ignore_all(message : String, listener : Object) -> bool:
 		if debug: print("Ignore all failed for listener ", listener.name, ". Message ", message, " doesn't exist")
 		return false
 	
-# `ignore` removes the method listed from the listener of the specified message
-func ignore(message : String, listener : Object, method : String) -> bool:
+# `ignore` removes the action listed from the listener of the specified message
+func ignore(message : String, listener : Object, action : String) -> bool:
+	if listener == null:
+		if debug: print("Listener is invalid. Cannot ignore message ", message)
+		return false
+	
 	# Check for the message
 	if messages.has(message):
 		# Check for the listener
 		if messages[message].has(listener):
-			# Remove the method if it exists
-			if messages[message][listener].has(method):
-				if debug: print("Successfully removed method ", method, " for listener ", listener.name, " for message ", message)
+			# Remove the action if it exists
+			if messages[message][listener]["actions"].has(action):
+				if debug: print("Successfully removed action ", action, " for listener ", listener.name, " for message ", message)
 				return true
 			else:
-				if debug: print("Cannot remove method ", method, ". No such method for listener ", listener.name, " for message ", message)
+				if debug: print("Cannot remove action ", action, ". No such action for listener ", listener.name, " for message ", message)
 				return false
 		else:
 			if debug: print("Ignore failed. Listener ", listener.name, " not listening to message ", message)
