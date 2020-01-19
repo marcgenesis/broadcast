@@ -1,7 +1,24 @@
+"""
+
+Broadcast for Godot Engine
+By marcgenesis (Marc-André Larivière - marcgenesis@hotmail.com)
+
+Broadcast is a global notification system for the open source Godot Engine. 
+Its goal is to help developers decouple their nodes and scenes to make them independent from one another.
+
+For more information, visit https://github.com/marcgenesis/broadcast
+
+For documentation, visit https://github.com/marcgenesis/broadcast/wiki/Broadcast-Guide
+
+"""
+
 extends Node
 
 # Debug variable, used to display internal messages or not
 var debug : bool = false
+
+# Error handling variable, used to display internal error only
+var error_handling : bool = false
 
 # Force message registration
 var force_registration : bool = false
@@ -43,7 +60,7 @@ func send(message : String, params : Dictionary = {}) -> bool:
 			for listener in messages[message]:
 				# Check if the listener has been freed.
 				# This is true if the id is now different, since the reference changed.
-				if listener.get_instance_id() == messages[message][listener]["id"]:
+				if listener != null && listener.get_instance_id() == messages[message][listener]["id"]:
 				
 					# Broadcast to each action
 					for action in messages[message][listener]["actions"]:
@@ -70,16 +87,16 @@ func send(message : String, params : Dictionary = {}) -> bool:
 			if debug: print("Successfully sent message: '", message, "' using params: ", params)
 			return true
 		else:
-			if debug: print("No listeners for message ", message)
+			if debug || error_handling: print("No listeners for message ", message)
 			return false
 	else:
-		if debug: print("Send failed. Message ", message, " doesn't exist")
+		if debug || error_handling: print("Send failed. Message ", message, " doesn't exist")
 		return false
 
 # `is_listening` verify if the listener is listening to the supplied message. Optionally it can verify if it is listening using a specific action
 func is_listening(message : String, listener : Object, action = "") -> bool:
 	if listener == null:
-		if debug: print("Listener is invalid. Cannot verify if it is listening.")
+		if debug || error_handling: print("Listener is invalid. Cannot verify if it is listening.")
 		return false
 	
 	if action == "":
@@ -98,14 +115,14 @@ func is_listening(message : String, listener : Object, action = "") -> bool:
 func listen(message : String, listener : Object, action : String, once = false) -> bool:
 	# Check to make sure the listener is valid
 	if listener == null:
-		if debug: print("Listener is invalid. Cannot add to message ", message, " using action " , action)
+		if debug || error_handling: print("Listener is invalid. Cannot add to message ", message, " using action " , action)
 		return false
 	
 	# If force_registration is on, make sure the message is registered before listening
 	if force_registration:
 		# Check if the message is registered
 		if registered_messages.find(message) == -1:
-			if debug: print("Listen failed. Force registration is on. Message ", message, " not registered.")
+			if debug || error_handling: print("Listen failed. Force registration is on. Message ", message, " not registered.")
 			return false
 	
 	# Check if the message already exists in the list of listeners, if not add it.
@@ -135,7 +152,7 @@ func listen_once(message : String, listener : Object, action : String) -> bool:
 # `ignore_all` removes the listener from the supplied message
 func ignore_all(message : String, listener : Object) -> bool:
 	if listener == null:
-		if debug: print("Listener is invalid. Cannot ignore message ", message)
+		if debug || error_handling: print("Listener is invalid. Cannot ignore message ", message)
 		return false
 	
 	# Check for the message
@@ -151,13 +168,13 @@ func ignore_all(message : String, listener : Object) -> bool:
 			
 		return true
 	else:
-		if debug: print("Ignore all failed for listener ", listener.name, ". Message ", message, " doesn't exist")
+		if debug || error_handling: print("Ignore all failed for listener ", listener.name, ". Message ", message, " doesn't exist")
 		return false
 	
 # `ignore` removes the action listed from the listener of the specified message
 func ignore(message : String, listener : Object, action : String) -> bool:
 	if listener == null:
-		if debug: print("Listener is invalid. Cannot ignore message ", message)
+		if debug || error_handling: print("Listener is invalid. Cannot ignore message ", message)
 		return false
 	
 	# Check for the message
@@ -169,13 +186,13 @@ func ignore(message : String, listener : Object, action : String) -> bool:
 				if debug: print("Successfully removed action ", action, " for listener ", listener.name, " for message ", message)
 				return true
 			else:
-				if debug: print("Cannot remove action ", action, ". No such action for listener ", listener.name, " for message ", message)
+				if debug || error_handling: print("Cannot remove action ", action, ". No such action for listener ", listener.name, " for message ", message)
 				return false
 		else:
-			if debug: print("Ignore failed. Listener ", listener.name, " not listening to message ", message)
+			if debug || error_handling: print("Ignore failed. Listener ", listener.name, " not listening to message ", message)
 			return false
 	else:
-		if debug: print("Ignore failed for listener ", listener.name, ". Message ", message, " doesn't exist")
+		if debug || error_handling: print("Ignore failed for listener ", listener.name, ". Message ", message, " doesn't exist")
 		return false
 
 # `is_registered` verify is the supplied message is already registered and returns the answer
