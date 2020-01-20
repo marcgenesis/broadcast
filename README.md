@@ -22,5 +22,19 @@ As you can see, each component is dependent on one another if we think with sign
 
 ## Getting started
 
-To get started with **Broadcast**, [download the latest release](https://github.com/marcgenesis/broadcast/releases/) and save the file `Broadcast.gd`
+To get started [download the latest release](https://github.com/marcgenesis/broadcast/releases/) and save the file `Broadcast.gd` to your Godot project. Add the file to your [autoload](https://docs.godotengine.org/en/3.1/getting_started/step_by_step/singletons_autoload.html) list. You are now ready to use **Broadcast**!
+
+## Documentation
+
+To use **Broadcast**, all you have to do is write Broadcast.function_name() or Broadcast.property since the autoload will make sure it is always available.
+
+### Properties
+
+Type | Name | Description
+-----|------|------------
+bool|debug|When enabled, all debug messages will appear in Godot's output.
+bool|error_handling|When enabled all negative debug messages will appear in Godot's output.
+bool|force_registration|When enabled, a message has to be registered before a node can listen to it.
+
+end
 
