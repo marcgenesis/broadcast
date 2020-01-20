@@ -20,5 +20,7 @@ When the enemy collides with the player, we need to remove some HP and in turn u
 
 As you can see, each component is dependent on one another if we think with signals. **Broadcast** helps us get rid of this issue. If you want to the this scenario in action, take a look a the supplied example scene called "PlayerHPExample".
 
-## How it works
+## Getting started
+
+To get started with **Broadcast**, [download the latest release](https://github.com/marcgenesis/broadcast/releases/) and save the file `Broadcast.gd`
 
