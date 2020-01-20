@@ -8,8 +8,6 @@ Its goal is to help developers decouple their nodes and scenes to make them inde
 
 For more information, visit https://github.com/marcgenesis/broadcast
 
-For documentation, visit https://github.com/marcgenesis/broadcast/wiki/Broadcast-Guide
-
 """
 
 extends Node
