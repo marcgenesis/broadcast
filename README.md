@@ -36,5 +36,25 @@ bool|debug|When enabled, all debug messages will appear in Godot's output.
 bool|error_handling|When enabled all negative debug messages will appear in Godot's output.
 bool|force_registration|When enabled, a message has to be registered before a node can listen to it.
 
-end
+### Methods
 
+In methods, *message* (string) refers to the broadcast message, *listener* (object) refers to the object listening for the message and *action* (string) refers to the method that will be called when the listener hears the message.
+
+#### get_actions(message, listener)
+
+Parameters:
+ * message (string)
+ * listener (object)
+
+Returns a dictionary containing the list of actions for the listener in the supplied message.
+
+#### get_listeners(message)
+
+Parameters:
+ * message (string)
+ 
+Returns a dictionary containing all the listeners for the supplied message. *Key* is the listernet object and *value* is its data.
+
+#### get_messages()
+
+Returns a dictionary containing all the messages. *Key* is the name of the message and *value* is its data.
