@@ -47,7 +47,7 @@ func get_actions(message : String, listener : Object) -> Dictionary:
 		return {}
 		
 	if messages.has(message) && messages[message].has(listener):
-		return messages[message][listener]["actions"]
+		return messages[message][listener]
 	else:
 		return {}
 
@@ -61,21 +61,21 @@ func send(message : String, params : Dictionary = {}) -> bool:
 				# Check if the listener has been freed before continuing.
 				if is_instance_valid(listener):
 					# Broadcast to each action
-					for action in messages[message][listener]["actions"]:
+					for action in messages[message][listener]:
 						if listener.has_method(action):
 							#If the action exists, broadcast the message
 							listener.call(action, params)
 							
 							# Remove if it is suppose to fire only once
-							if messages[message][listener]["actions"][action]:
-								messages[message][listener]["actions"].erase(action)
+							if messages[message][listener][action]:
+								messages[message][listener].erase(action)
 								if debug: print("action ", action, " fired once for listener ", listener.name, " on message ", message, " and was removed.")
 						else:
 							# Check if the listener was deleted. If so remove it from the list
 							if debug: print("Not such action (", action, ") for listener ", listener.name)
 			
 					# If the listener doesn't have any actions left, remove it from the message
-					if messages[message][listener]["actions"].size() == 0:
+					if messages[message][listener].size() == 0:
 						messages[message].erase(listener)
 						
 				else:
@@ -103,7 +103,7 @@ func is_listening(message : String, listener : Object, action = "") -> bool:
 			return true
 	else:
 		# Check if the listerner is listening to the supplied message using the supplied action
-		if messages.has(message) && messages[message].has(listener) && messages[message][listener]["actions"].has(action):
+		if messages.has(message) && messages[message].has(listener) && messages[message][listener].has(action):
 			return true
 	
 	# If the function hasn't returned yet, it means the listener isn't listening
@@ -129,11 +129,11 @@ func listen(message : String, listener : Object, action : String, once = false) 
 	
 	# Check if the listener already exists, if not add it.
 	if !messages[message].has(listener):
-		messages[message][listener] = {"actions" : {}, "id" : listener.get_instance_id()}
+		messages[message][listener] = {}
 	
 	# Add the action to the listener for the supplied message, if necessary
-	if !messages[message][listener]["actions"].has(action):
-		messages[message][listener]["actions"][action] = once
+	if !messages[message][listener].has(action):
+		messages[message][listener][action] = once
 	else:
 		if debug: print("Listener ", listener.name, " already listening for message ", message, " with action ", action)
 		return false
@@ -180,7 +180,7 @@ func ignore(message : String, listener : Object, action : String) -> bool:
 		# Check for the listener
 		if messages[message].has(listener):
 			# Remove the action if it exists
-			if messages[message][listener]["actions"].has(action):
+			if messages[message][listener].has(action):
 				if debug: print("Successfully removed action ", action, " for listener ", listener.name, " for message ", message)
 				return true
 			else:
