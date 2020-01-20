@@ -1,18 +1,14 @@
 extends Area2D
 
-# Declare member variables here. Examples:
-# var a = 2
-# var b = "text"
-var HP = 30
+export var HP = 30
 
-# Called when the node enters the scene tree for the first time.
 func _ready():
+	# Listen for restore HP broadcast
+	Broadcast.listen("restore_hp", self, "_on_restore_hp")
+	
 	# Send a message with the current player's HP
 	Broadcast.send("player_hp_change", {"player_hp":HP})
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass
 
 func _on_Player_area_entered(area):
 	# Detect a collision with an enemy
@@ -25,4 +21,13 @@ func _on_Player_area_entered(area):
 		
 		# Destroy the player if its HP is 0 or less
 		if HP <= 0:
+			Broadcast.send("defeat")
 			queue_free()
+
+# Called on broadcast from "restore_hp"
+func _on_restore_hp(params):
+	# Change the HP
+	HP += params["restore"]
+	
+	# Broadcast the HP change
+	Broadcast.send("player_hp_change", {"player_hp":HP})

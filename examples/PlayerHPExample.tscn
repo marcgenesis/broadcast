@@ -1,19 +1,23 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=11 format=2]
 
 [ext_resource path="res://fonts/Roboto-Regular.ttf" type="DynamicFontData" id=1]
 [ext_resource path="res://broadcast/examples/PlayerHPExampleScripts/HPLabel.gd" type="Script" id=2]
-[ext_resource path="res://broadcast/examples/PlayerHPExampleScripts/Player.gd" type="Script" id=3]
-[ext_resource path="res://broadcast/examples/assets/icon.png" type="Texture" id=4]
-[ext_resource path="res://broadcast/examples/PlayerHPExampleScripts/Enemy.gd" type="Script" id=5]
+[ext_resource path="res://broadcast/examples/PlayerHPExampleScripts/RestoreHP.gd" type="Script" id=3]
+[ext_resource path="res://broadcast/examples/PlayerHPExampleScripts/Player.gd" type="Script" id=4]
+[ext_resource path="res://broadcast/examples/assets/icon.png" type="Texture" id=5]
+[ext_resource path="res://broadcast/examples/PlayerHPExampleScripts/Enemy.gd" type="Script" id=6]
 
 [sub_resource type="DynamicFont" id=1]
 use_filter = true
 font_data = ExtResource( 1 )
 
+[sub_resource type="DynamicFont" id=2]
+font_data = ExtResource( 1 )
+
 [sub_resource type="RectangleShape2D" id=3]
 extents = Vector2( 44, 44 )
 
-[sub_resource type="RectangleShape2D" id=2]
+[sub_resource type="RectangleShape2D" id=4]
 extents = Vector2( 44, 44 )
 
 [node name="Scene" type="Node2D"]
@@ -31,12 +35,21 @@ custom_fonts/font = SubResource( 1 )
 text = "Player's health: "
 script = ExtResource( 2 )
 
-[node name="Player" type="Area2D" parent="."]
-position = Vector2( 300, 400 )
+[node name="RestoreHP" type="Button" parent="GUI"]
+margin_left = 216.0
+margin_top = 18.0
+margin_right = 407.0
+margin_bottom = 38.0
+custom_fonts/font = SubResource( 2 )
+text = "Restore Health"
 script = ExtResource( 3 )
 
+[node name="Player" type="Area2D" parent="."]
+position = Vector2( 300, 400 )
+script = ExtResource( 4 )
+
 [node name="PlayerSprite" type="Sprite" parent="Player"]
-texture = ExtResource( 4 )
+texture = ExtResource( 5 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
 shape = SubResource( 3 )
@@ -45,14 +58,15 @@ shape = SubResource( 3 )
 "Enemy",
 ]]
 position = Vector2( 100, 400 )
-script = ExtResource( 5 )
+script = ExtResource( 6 )
 
 [node name="EnemySprite" type="Sprite" parent="Enemy"]
 modulate = Color( 1, 0, 0, 1 )
-texture = ExtResource( 4 )
+texture = ExtResource( 5 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Enemy"]
-shape = SubResource( 2 )
+shape = SubResource( 4 )
 
 [node name="Tween" type="Tween" parent="Enemy"]
+[connection signal="pressed" from="GUI/RestoreHP" to="GUI/RestoreHP" method="_on_RestoreHP_pressed"]
 [connection signal="area_entered" from="Player" to="Player" method="_on_Player_area_entered"]

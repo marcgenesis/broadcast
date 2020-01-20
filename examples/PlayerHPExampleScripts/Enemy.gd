@@ -8,7 +8,7 @@ var direction : bool = 1
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	# Enemy listens to victory, but only once.
-	Broadcast.listen_once("victory", self, "_on_victory")
+	Broadcast.listen_once("defeat", self, "_on_defeat")
 	
 	# Create the enemy movement
 	$Tween.repeat = true
@@ -18,5 +18,5 @@ func _ready():
 
 
 # Function that will get called upon victory.
-func _on_victory(params):
+func _on_defeat(params):
 	scale = Vector2(5, 5)

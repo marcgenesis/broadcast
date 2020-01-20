@@ -58,10 +58,8 @@ func send(message : String, params : Dictionary = {}) -> bool:
 		# If it exists, broadcast to every listener
 		if messages[message].size() > 0:
 			for listener in messages[message]:
-				# Check if the listener has been freed.
-				# This is true if the id is now different, since the reference changed.
-				if listener != null && listener.get_instance_id() == messages[message][listener]["id"]:
-				
+				# Check if the listener has been freed before continuing.
+				if is_instance_valid(listener):
 					# Broadcast to each action
 					for action in messages[message][listener]["actions"]:
 						if listener.has_method(action):
@@ -81,7 +79,7 @@ func send(message : String, params : Dictionary = {}) -> bool:
 						messages[message].erase(listener)
 						
 				else:
-					# The id is now different. The listener was freed from the scene. Delete it from the message.
+					# The listener was freed from the scene. Delete it from the message.
 					messages[message].erase(listener)
 		
 			if debug: print("Successfully sent message: '", message, "' using params: ", params)
