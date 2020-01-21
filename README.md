@@ -66,7 +66,7 @@ Parameters:
  * listener (object)
  * action (string)
  
-Returns a boolean (true for success, false for failure). Ignore is used to remove a specific action from the listener for the supplied message, which means the listener will now *ignore* the broadcast message, but only for the specified action.
+Returns a boolean (true for success, false for failure). Ignore is used to remove a specific action from the listener for the supplied message, which means the listener will now *ignore* the broadcast message, but only for the specified action. If the listener is listening to the message with other actions, those will stay.
 
 #### ignore_all(message, listener)
 
@@ -74,4 +74,24 @@ Parameters:
  * message (string)
  * listener (object)
  
-Returns a boolean (true for success, false for failure). Ignore_all
+Returns a boolean (true for success, false for failure). Ignore_all stops the listener from listening to the supplied message entirely.
+
+#### is_listening(message, listener, action)
+
+Parameters:
+ * message (string)
+ * listener (object)
+ * action (string - optional)
+ 
+Returns a boolean stating whether or not the listener is listening to the supplied message. If an action is specified, it verifies if the listener is listening with a specific action.
+
+#### is_registered(message)
+
+Parameters:
+ * message (string)
+
+Returns a boolean stating whether or not the supplied message is registered.
+
+#### listen(message, listener, action, once)
+
+
