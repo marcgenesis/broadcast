@@ -46,15 +46,32 @@ Parameters:
  * message (string)
  * listener (object)
 
-Returns a dictionary containing the list of actions for the listener in the supplied message.
+Returns a dictionary containing the list of actions for the listener in the supplied message. *Key* is the action object and *value* is a boolean that determines if the action will run once or indefinitely.
 
 #### get_listeners(message)
 
 Parameters:
  * message (string)
  
-Returns a dictionary containing all the listeners for the supplied message. *Key* is the listernet object and *value* is its data.
+Returns a dictionary containing all the listeners for the supplied message. *Key* is the listener object and *value* is its data.
 
 #### get_messages()
 
 Returns a dictionary containing all the messages. *Key* is the name of the message and *value* is its data.
+
+#### ignore(message, listener, action)
+
+Parameters:
+ * message (string)
+ * listener (object)
+ * action (string)
+ 
+Returns a boolean (true for success, false for failure). Ignore is used to remove a specific action from the listener for the supplied message, which means the listener will now *ignore* the broadcast message, but only for the specified action.
+
+#### ignore_all(message, listener)
+
+Parameters:
+ * message (string)
+ * listener (object)
+ 
+Returns a boolean (true for success, false for failure). Ignore_all
