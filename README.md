@@ -66,7 +66,7 @@ Parameters:
  * listener (object)
  * action (string)
  
-Returns a boolean (true for success, false for failure). *Ignore* is used to remove a specific action from the listener for the supplied message, which means the listener will now *ignore* the broadcast message, but only for the specified action. If the listener is listening to the message with other actions, those will stay.
+Returns a boolean (true for success, false for failure). *ignore* is used to remove a specific action from the listener for the supplied message, which means the listener will now *ignore* the broadcast message, but only for the specified action. If the listener is listening to the message with other actions, those will stay.
 
 #### ignore_all(message, listener)
 
@@ -74,7 +74,7 @@ Parameters:
  * message (string)
  * listener (object)
  
-Returns a boolean (true for success, false for failure). *Ignore_all* stops the listener from listening to the supplied message entirely.
+Returns a boolean (true for success, false for failure). *ignore_all* stops the listener from listening to the supplied message entirely.
 
 #### is_listening(message, listener, action)
 
@@ -100,7 +100,9 @@ Parameters:
  * action (string)
  * once (boolean - optional)
  
-Returns a boolean (true for success, false for failure). *Listen* adds the supplied listener to the supplied message using the specified action. When the message is broadcasted, the action - or method - will be called on the listener. *Once* is optional, and we recommend not to use it directly - see *listen_once* below.
+Returns a boolean (true for success, false for failure). *listen* adds the supplied listener to the supplied message using the specified action. When the message is broadcasted, the action - or method - will be called on the listener. *Once* is optional, and we recommend not to use it directly - see *listen_once* below.
+
+**NOTE**: The method associated with the action requires one parameter that will receive a dictionary containing the parameters. See *send* below.
 
 #### listen_once(message, listener, action)
 
@@ -109,5 +111,29 @@ Parameters:
  * listener (object)
  * action (string)
 
-Returns a boolean (true for success, false for failure).
+Returns a boolean (true for success, false for failure). *listen_once* adds the supplied listener to the supplied message using the specified action. When the message is broadcasted, the action - or method - will be called on the listener and **then the action will be removed**. This means the listener, for this method, will only receive the broadcast once.
+
+**NOTE**: The method associated with the action requires one parameter that will receive a dictionary containing the parameters. See *send* below.
+
+#### register(message)
+
+Parameters:
+ * message (string)
+ 
+Returns a boolean (true for success, false for failure). *register* registers the supplied message to the list of registered message. This is mandatory if the property *force_registration* is true.
+
+#### send(message, params)
+
+Parameters:
+ * message (string)
+ * params (dictionary - optional)
+ 
+Returns a boolean (true for success, false for failure). *send* broadcasts a message to all the actions associated with the listeners that are listening to the supplied message. The *params* are passed to the method called from the action.
+
+#### register(message)
+
+Parameters:
+ * message (string)
+ 
+Returns a boolean (true for success, false for failure). *unregister* removes the supplied message from the list of registered message. Only useful when *force_registration* is true.
  
