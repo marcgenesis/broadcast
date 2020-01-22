@@ -18,7 +18,7 @@ You have a small scene with 4 components:
  
 When the enemy collides with the player, we need to remove some HP and in turn update the health label. When we click the button to restore some health, we need to update both the player's health and the label. Oh and maybe we want to do something with the enemy when the player's health reached 0.
 
-As you can see, each component is dependent on one another if we think with signals. **Broadcast** helps us get rid of this issue. If you want to the this scenario in action, take a look a the supplied example scene called "PlayerHPExample".
+As you can see, each component is dependent on one another if we think with signals. **Broadcast** helps us get rid of this issue. If you want to see this scenario in action, take a look a the supplied example scene called "PlayerHPExample". In the scene, you can delete any component you want, and the scene will still run without any errors.
 
 ## Getting started
 
