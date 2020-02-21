@@ -49,6 +49,11 @@ func get_actions(message : String, listener : Object) -> Dictionary:
 	else:
 		return {}
 
+# `send_deferred` broadcasts the message only when it is available to do so
+func send_deferred(message : String, params : Dictionary = {}) -> bool:
+	call_deferred("send", message, params)
+	return true
+
 # `send` broadcasts the message to the listeners and supplies the parameters and the broadcaster, if supplied
 func send(message : String, params : Dictionary = {}) -> bool:
 	# Check if the message exists
